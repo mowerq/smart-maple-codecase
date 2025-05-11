@@ -127,6 +127,15 @@ const CalendarContainer = ({
     return dates;
   };
 
+  /**
+   * Creates a map of dates to staff members with their assigned colors.
+   *
+   * Uses `useMemo` to optimize performance, recalculating only when
+   * `selectedStaffId` or `schedule` changes. Filters out off days and
+   * maps paired staff details (including color) to specific dates.
+   *
+   * @returns {Map<string, staffDTOWithColor>} A map of dates to staff details.
+   */
   const highlightedDateStaffs = useMemo(() => {
     const map = new Map<string, staffDTOWithColor>();
 
@@ -186,6 +195,12 @@ const CalendarContainer = ({
     return dates;
   }, [schedule]);
 
+  /**
+   * Generates calendar events for the selected staff member.
+   * Filters assignments based on the selected staff ID and creates event objects
+   * with relevant details like title, date, and styling. Updates the `events` state
+   * with the generated list.
+   */
   const generateStaffBasedCalendar = () => {
     if (!selectedStaffId) {
       setEvents([]);
@@ -279,6 +294,14 @@ const CalendarContainer = ({
     );
   };
 
+  /**
+   * Handles the event drop action on the calendar.
+   *
+   * Updates the assignment's start and end dates in the store when an event is dragged
+   * and dropped to a new date.
+   *
+   * @param {EventDropArg} info - Contains details about the dropped event.
+   */
   const handleEventDrop = (info: EventDropArg) => {
     const { id, startStr, endStr } = info.event;
 

@@ -62,7 +62,7 @@ const PersonnelSelector = ({
                 }}
                 onClick={() => onStaffChange(member.id)}
               >
-                <Avatar
+                <Avatar // Maybe there can be avatars in the future. I don't know. I just added.
                   className={cn(
                     "h-8 w-8 transition-all",
                     isSelected ? "ring-2 ring-offset-2" : ""
