@@ -8,8 +8,6 @@ import type { ScheduleInstance } from "../../models/schedule";
 import type { staffDTOWithColor, UserInstance } from "../../models/user";
 
 import FullCalendar from "@fullcalendar/react";
-import trLocale from "@fullcalendar/core/locales/tr";
-import enLocale from "@fullcalendar/core/locales/en-gb"; // optional
 
 import interactionPlugin from "@fullcalendar/interaction";
 import dayGridPlugin from "@fullcalendar/daygrid";
@@ -111,9 +109,7 @@ const CalendarContainer = ({
   const { t } = useTranslation();
 
   const [events, setEvents] = useState<EventInput[]>([]);
-  const [initialDate, setInitialDate] = useState<Date>(() =>
-    dayjs(schedule?.scheduleStartDate).toDate()
-  );
+  const initialDate = dayjs(schedule?.scheduleStartDate).toDate();
   const [selectedEvent, setSelectedEvent] = useState<EventPopupData | null>(
     null
   );

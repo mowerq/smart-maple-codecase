@@ -1,5 +1,5 @@
 import { Check, Search } from "lucide-react";
-import React, { useState } from "react";
+import { useState } from "react";
 import { Input } from "../ui/input";
 import { ScrollArea } from "../ui/scroll-area";
 import { cn } from "@/lib/utils";
