@@ -272,7 +272,9 @@ const CalendarContainer = ({
     };
     return (
       <div onClick={handleEventClick} className="event-content">
-        <p className="px-4 py-2 text-xs">{eventInfo.event.title}</p>
+        <p className="px-4 py-2 text-xs truncate overflow-hidden whitespace-nowrap">
+          {eventInfo.event.title}
+        </p>
       </div>
     );
   };
