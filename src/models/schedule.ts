@@ -16,7 +16,7 @@ export type ScheduleInstance = {
     shiftEnd: string;
     isEndFollowingDay: boolean;
     shiftRule: string;
-    point: number;
+    shiftDurationHourly: number;
     name: string;
     requiredPersonnel: any;
   }>;

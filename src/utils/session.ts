@@ -10,6 +10,11 @@ import {
   SESSION_KEY_ORGANIZATION_ID,
 } from "../constants/common";
 
+interface userRole {
+  id: number,
+  name: string
+}
+
 class AuthSession {
   static sessionKey_id = SESSION_KEY_ID;
   static sessionKey_name = SESSION_KEY_NAME;
@@ -36,7 +41,7 @@ class AuthSession {
     return Storage.get(AuthSession.sessionKey_phone_number);
   }
 
-  static getRoles(): number {
+  static getRoles(): userRole {
     return Storage.get(AuthSession.sessionKey_roles);
   }
 
@@ -68,7 +73,7 @@ class AuthSession {
     Storage.set(AuthSession.sessionKey_email, tokenValue);
   }
 
-  static setRoles(tokenValue: string): void {
+  static setRoles(tokenValue: userRole): void {
     Storage.set(AuthSession.sessionKey_roles, tokenValue);
   }
 

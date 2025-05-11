@@ -1,9 +1,9 @@
 .profile-calendar-container {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  padding: 20px;
   background-color: #f9f9f9;
+  height: 100dvh;
+  width: 100dvw;
 }
 
 .profile-section {
@@ -22,14 +22,18 @@
 
 .calendar-section {
   background-color: #fff;
-  padding: 16px;
+  padding: 24px;
   border-radius: 8px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-  /* height: 100%; */
+  height: 100%;
 }
 
 .calendar-wrapper {
   min-height: 400px;
+  height: 100%;
+}
+.calendar-wrapper > * {
+  height: 100%;
 }
 
 .staff-calendar-container {
@@ -347,88 +351,9 @@
     background: #b3524c;
     border: 1px solid #ffffff;
   }
-
-  .staffs {
-    width: 32%;
-    margin-right: 3%;
-    height: inherit;
-    overflow-y: auto;
-    margin-bottom: auto;
-    text-transform: capitalize;
-
-    &::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    &::-webkit-scrollbar-track {
-      background: #ffffff;
-      box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
-    }
-
-    &::-webkit-scrollbar-thumb {
-      background: #19979c;
-      border-radius: 4px;
-      border: 1px solid #ffffff;
-    }
-
-    div {
-      border-bottom: 1px solid #dddddd;
-      display: flex;
-      align-items: center;
-      min-height: 32px;
-      margin: 4px;
-      padding-left: 8px;
-      transition: all 0.3s;
-      cursor: pointer;
-
-      &:last-child {
-        border-bottom: none;
-      }
-    }
-  }
-}
-
-.staff-list {
-  margin: auto;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-
-  .staff {
-    min-height: 32px;
-    padding: 0 12px;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    background: #ffffff;
-    color: #19979c;
-    border: 1px solid #19979c;
-    border-radius: 8px;
-    text-transform: capitalize;
-    transition: all 0.3s;
-    cursor: pointer;
-
-    svg path {
-      fill: #19979c;
-      transition: all 0.3s;
-    }
-
-    &.active {
-      background: #19979c;
-      color: #ffffff;
-
-      svg path {
-        fill: #ffffff;
-      }
-    }
-
-    p {
-      color: inherit;
-    }
-  }
 }
 
 .highlightedPair {
   content: "";
-  border-bottom: 5px solid rgba(194, 6, 138, 0.5) !important;
+  border-bottom: 5px solid rgba(194, 6, 138, 0.5);
 }

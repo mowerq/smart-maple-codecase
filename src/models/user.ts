@@ -17,3 +17,9 @@ export interface UserInstance {
   currentDepartmentId: string;
   language: string;
 }
+
+export interface staffDTOWithColor {
+  id: string;
+  name: string;
+  color: string;
+}
