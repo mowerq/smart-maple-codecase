@@ -49,7 +49,7 @@ const Header = ({
             <div className="flex flex-col h-full">
               <SheetHeader className="px-4 py-3 border-b border-slate-200 dark:border-slate-800">
                 <SheetTitle className="text-left">
-                  {t("eventManagement")}
+                  {t("header.pageTitleMobile")}
                 </SheetTitle>
               </SheetHeader>
 
