@@ -49,13 +49,12 @@ const ProfileCalendar = () => {
     dispatch(fetchSchedule() as any);
   }, []);
 
-  // 2. When schedule is ready, enrich it with colors
   useEffect(() => {
     if (schedule.staffs?.length) {
       const coloredStaffs = schedule.staffs.map((staff, i) => ({
         id: staff.id,
         name: staff.name,
-        color: randomColors[i % randomColors.length], // Safe looping
+        color: randomColors[i % randomColors.length],
       }));
       setStaffs(coloredStaffs);
     }
