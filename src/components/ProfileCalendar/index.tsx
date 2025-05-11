@@ -26,10 +26,10 @@ const ProfileCalendar = () => {
   const [selectedStaff, setSelectedStaff] = useState<string>("");
 
   const randomColors = [
-    "#FF5733",
     "#33B5FF",
-    "#8E44AD",
     "#2ECC71",
+    "#FF5733",
+    "#8E44AD",
     "#F1C40F",
     "#E67E22",
     "#1ABC9C",
@@ -61,7 +61,7 @@ const ProfileCalendar = () => {
     }
   }, [schedule.staffs]);
 
-  const handleStaffToggle = (staffId: string) => {
+  const onStaffChange = (staffId: string) => {
     setSelectedStaff((prev) => {
       // If clicking on already selected item, deselect it
       if (prev === staffId) {
@@ -74,7 +74,12 @@ const ProfileCalendar = () => {
 
   return (
     <div className="profile-calendar-container">
-      <Header />
+      <Header
+        profile={auth}
+        members={staffs}
+        selectedId={selectedStaff}
+        onStaffChange={onStaffChange}
+      />
 
       <div className="flex flex-1 w-full overflow-hidden">
         {/* This is the left side of the page */}
@@ -87,7 +92,7 @@ const ProfileCalendar = () => {
             <PersonnelSelector
               members={staffs}
               selectedId={selectedStaff}
-              onToggle={handleStaffToggle}
+              onStaffChange={onStaffChange}
             />
           </div>
         </div>

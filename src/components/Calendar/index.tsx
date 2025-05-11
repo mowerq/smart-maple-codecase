@@ -8,11 +8,17 @@ import type { ScheduleInstance } from "../../models/schedule";
 import type { staffDTOWithColor, UserInstance } from "../../models/user";
 
 import FullCalendar from "@fullcalendar/react";
+import trLocale from "@fullcalendar/core/locales/tr";
+import enLocale from "@fullcalendar/core/locales/en-gb"; // optional
 
 import interactionPlugin from "@fullcalendar/interaction";
 import dayGridPlugin from "@fullcalendar/daygrid";
 
-import { formatDate, type EventInput } from "@fullcalendar/core/index.js";
+import {
+  formatDate,
+  type EventDropArg,
+  type EventInput,
+} from "@fullcalendar/core/index.js";
 
 import "../profileCalendar.scss";
 
@@ -26,6 +32,9 @@ import { ArrowRight, CalendarIcon, Clock } from "lucide-react";
 import { Card, CardContent } from "../ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
+import { useDispatch } from "react-redux";
+import { updateAssignmentDate } from "@/store/schedule/actions";
+import { useTranslation } from "react-i18next";
 
 dayjs.extend(utc);
 dayjs.extend(isSameOrBefore);
@@ -98,6 +107,8 @@ const CalendarContainer = ({
   coloredStaffs,
 }: CalendarContainerProps) => {
   const calendarRef = useRef<FullCalendar>(null);
+  const dispatch = useDispatch();
+  const { t } = useTranslation();
 
   const [events, setEvents] = useState<EventInput[]>([]);
   const [initialDate, setInitialDate] = useState<Date>(() =>
@@ -106,21 +117,42 @@ const CalendarContainer = ({
   const [selectedEvent, setSelectedEvent] = useState<EventPopupData | null>(
     null
   );
-  const highlightedDateColors = useMemo(() => {
-    const map = new Map<string, string>();
+  const [hoveredDate, setHoveredDate] = useState<string | null>(null);
+  const getDatesBetween = (startDate: string, endDate: string) => {
+    const dates = [];
+    let current = dayjs(startDate, "DD-MM-YYYY");
+    const end = dayjs(endDate, "DD-MM-YYYY");
 
-    if (selectedStaffId) {
-      const currentStaff = schedule.staffs.find(
-        (staff) => staff.id === selectedStaffId
-      );
-
-      if (currentStaff?.pairList) {
-        currentStaff.pairList.forEach((pair: any) => {
-          const date = dayjs(pair.assignmentDate).format("DD-MM-YYYY");
-          map.set(date, pair.shiftColorCode);
-        });
-      }
+    while (current.isSameOrBefore(end)) {
+      dates.push(current.format("DD-MM-YYYY"));
+      current = current.add(1, "day");
     }
+
+    return dates;
+  };
+
+  const highlightedDateStaffs = useMemo(() => {
+    const map = new Map<string, staffDTOWithColor>();
+
+    const currentStaff = schedule?.staffs?.find(
+      (staff) => staff.id === selectedStaffId
+    );
+    if (!currentStaff) return map;
+
+    const offDays = currentStaff.offDays;
+
+    currentStaff.pairList?.forEach((pair) => {
+      const pairedStaff = coloredStaffs.find((s) => s.id === pair.staffId);
+      if (!pairedStaff) return;
+
+      const dateList = getDatesBetween(pair.startDate, pair.endDate);
+
+      dateList
+        .filter((d) => !offDays.includes(d))
+        .forEach((d) => {
+          map.set(d, pairedStaff);
+        });
+    });
 
     return map;
   }, [selectedStaffId, schedule]);
@@ -158,20 +190,12 @@ const CalendarContainer = ({
     return dates;
   }, [schedule]);
 
-  const getDatesBetween = (startDate: string, endDate: string) => {
-    const dates = [];
-    let current = dayjs(startDate, "DD-MM-YYYY");
-    const end = dayjs(endDate, "DD-MM-YYYY");
-
-    while (current.isSameOrBefore(end)) {
-      dates.push(current.format("DD-MM-YYYY"));
-      current = current.add(1, "day");
+  const generateStaffBasedCalendar = () => {
+    if (!selectedStaffId) {
+      setEvents([]);
+      return;
     }
 
-    return dates;
-  };
-
-  const generateStaffBasedCalendar = () => {
     const works: EventInput[] = [];
 
     for (let i = 0; i < schedule?.assignments?.length; i++) {
@@ -205,28 +229,6 @@ const CalendarContainer = ({
       };
       works.push(work);
     }
-
-    const currentStaff = schedule?.staffs?.find(
-      (staff) => staff.id === selectedStaffId
-    );
-    if (!currentStaff) {
-      setEvents([]);
-      return;
-    }
-    const offDays = currentStaff!.offDays;
-
-    currentStaff!.pairList!.forEach((pair) => {
-      const color = coloredStaffs.find((s) => s.id === pair.staffId)?.color;
-      if (!color) return;
-
-      const dateList = getDatesBetween(pair.startDate, pair.endDate); // should return strings in "DD-MM-YYYY" or "DD-MM-YYYY"
-
-      dateList
-        .filter((d) => !offDays.includes(d))
-        .forEach((d) => {
-          highlightedDateColors.set(d, color); // You may want to handle conflicts here
-        });
-    });
 
     setEvents(works);
   };
@@ -279,6 +281,18 @@ const CalendarContainer = ({
     );
   };
 
+  const handleEventDrop = (info: EventDropArg) => {
+    const { id, startStr, endStr } = info.event;
+
+    dispatch(
+      updateAssignmentDate({
+        id,
+        newShiftStart: startStr,
+        newShiftEnd: endStr,
+      }) as any
+    );
+  };
+
   return (
     <div className="calendar-section dark:bg-slate-900!">
       <div className="calendar-wrapper">
@@ -292,13 +306,15 @@ const CalendarContainer = ({
           editable={true}
           eventOverlap={true}
           eventDurationEditable={false}
+          eventDrop={handleEventDrop}
+          dragScroll={false}
           initialView="dayGridMonth"
           initialDate={initialDate}
           events={events}
           firstDay={1}
           dayMaxEventRows={4}
           headerToolbar={{ end: "prev,today,next", start: "title" }}
-          buttonText={{ today: "Today" }}
+          buttonText={{ today: t("today") }}
           fixedWeekCount={true}
           showNonCurrentDates={true}
           eventContent={(eventInfo: any) => (
@@ -348,21 +364,51 @@ const CalendarContainer = ({
             }
           }}
           dayCellContent={({ date }) => {
+            const formattedDate = dayjs(date).date();
+            const dateKey = dayjs(date).format("DD-MM-YYYY");
             const found = validDates.includes(dayjs(date).format("YYYY-MM-DD"));
-            const highlightColor = highlightedDateColors.get(
-              dayjs(date).format("DD-MM-YYYY")
-            );
+            const highlightStaff = highlightedDateStaffs.get(dateKey);
             let isHighlighted = false;
-            if (highlightColor) isHighlighted = true;
+            if (highlightStaff) isHighlighted = true;
 
             return (
               <div
-                className={`${found ? "" : "date-range-disabled"} ${
-                  isHighlighted ? "highlightedPair" : ""
-                }`}
-                style={{ borderColor: highlightColor }}
+                className={`relative z-[9999] ${
+                  found ? "" : "date-range-disabled"
+                } ${isHighlighted ? "highlightedPair" : ""}`}
+                style={{ borderColor: highlightStaff?.color }}
+                onMouseEnter={(e) => {
+                  setHoveredDate(dateKey);
+
+                  const frame = e.currentTarget.closest(
+                    ".fc-daygrid-day-frame"
+                  ) as HTMLElement;
+                  if (frame) {
+                    frame.style.zIndex = "9999";
+                    frame.style.position = "relative";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  setHoveredDate(null);
+
+                  const frame = e.currentTarget.closest(
+                    ".fc-daygrid-day-frame"
+                  ) as HTMLElement;
+                  if (frame) {
+                    frame.style.zIndex = ""; // reset to default
+                  }
+                }}
               >
-                {dayjs(date).date()}
+                {formattedDate}
+
+                {hoveredDate === dateKey && highlightStaff && (
+                  <div
+                    className="absolute bottom-full mt-1 left-1/2 -translate-x-1/2 px-4 py-2 border-[1px] bg-white text-black text-xs rounded-sm shadow-sm z-[9999]"
+                    style={{ boxShadow: "0 0 6px " + highlightStaff.color }}
+                  >
+                    {highlightStaff.name}
+                  </div>
+                )}
               </div>
             );
           }}
@@ -374,7 +420,7 @@ const CalendarContainer = ({
           onOpenChange={(open) => !open && setSelectedEvent(null)}
         >
           <DialogTitle className="sr-only">
-            {selectedEvent?.title || "Event Details"}
+            {selectedEvent?.title || t("eventDetails")}
           </DialogTitle>
 
           <DialogContent className="sm:max-w-[550px] p-0 overflow-hidden">
@@ -403,6 +449,7 @@ const CalendarContainer = ({
                           month: "long",
                           year: "numeric",
                           weekday: "long",
+                          locale: auth.language,
                         })}
                       </span>
                     </div>
@@ -437,7 +484,7 @@ const CalendarContainer = ({
                             {selectedEvent.staffName}
                           </h3>
                           <p className="text-sm text-slate-500 dark:text-slate-400">
-                            {"Personnel"}
+                            {t("personnel.personnel")}
                           </p>
                         </div>
                       </div>
@@ -452,7 +499,7 @@ const CalendarContainer = ({
                       </div>
                       <div>
                         <p className="text-sm text-slate-500 dark:text-slate-400">
-                          {"Event Hours"}
+                          {t("event.eventHours")}
                         </p>
                         <div className="flex items-center gap-2 mt-1">
                           <p className="text-base font-medium">
@@ -463,7 +510,7 @@ const CalendarContainer = ({
                             {selectedEvent.endTime}
                           </p>
                           <span className="text-sm text-slate-500 dark:text-slate-400 ml-1">
-                            {`(${selectedEvent.durationHourly} hours)`}
+                            {`(${selectedEvent.durationHourly} ${t("hours")})`}
                           </span>
                         </div>
                       </div>
@@ -476,13 +523,16 @@ const CalendarContainer = ({
                       variant="outline"
                       onClick={() => setSelectedEvent(null)}
                     >
-                      {"Close"}
+                      {t("close")}
                     </Button>
                     <Button
                       style={{ backgroundColor: selectedEvent.staffColor }}
                       className="hover:opacity-90"
+                      onClick={(e) =>
+                        (e.currentTarget.innerText = t("notImplementedYet"))
+                      }
                     >
-                      {"Edit"}
+                      {t("edit")}
                     </Button>
                   </div>
                 </div>

@@ -1,7 +1,8 @@
-import { createAction } from 'redux-actions';
+import { createAction } from "redux-actions";
 
-import types from './types';
+import types from "./types";
 
 export const setProfile = createAction(types.SIGNIN);
 export const signinSuccess = createAction(types.SIGNIN_SUCCESS);
-export const signinFailed = createAction(types.SIGNIN_FAILED);;
+export const signinFailed = createAction(types.SIGNIN_FAILED);
+export const updateLanguage = createAction(types.UPDATE_LANGUAGE);

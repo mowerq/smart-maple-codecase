@@ -5,19 +5,21 @@ import { ScrollArea } from "../ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import type { staffDTOWithColor } from "@/models/user";
+import { useTranslation } from "react-i18next";
 
 interface PersonnelSelectorProps {
   members: staffDTOWithColor[];
   selectedId: string;
-  onToggle: (id: string) => void;
+  onStaffChange: (id: string) => void;
 }
 
 const PersonnelSelector = ({
   members,
   selectedId,
-  onToggle,
+  onStaffChange,
 }: PersonnelSelectorProps) => {
   const [searchQuery, setSearchQuery] = useState("");
+  const { t } = useTranslation();
 
   // Filter members based on search query
   const filteredMembers = members.filter((member) =>
@@ -27,14 +29,14 @@ const PersonnelSelector = ({
   return (
     <div className="space-y-4">
       <div className="py-2 text-sm font-medium text-slate-700 dark:text-slate-300">
-        Personnel List
+        {t("personnel.personnelList")}
       </div>
 
       {/* Search integrated directly with the personnel list */}
       <div className="relative mb-3">
         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-slate-500 dark:text-slate-400" />
         <Input
-          placeholder={"Search Personnel"}
+          placeholder={t("personnel.searchPersonnel")}
           className="pl-9 h-9 text-sm"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
@@ -58,7 +60,7 @@ const PersonnelSelector = ({
                 style={{
                   borderLeftColor: isSelected ? member.color : "transparent",
                 }}
-                onClick={() => onToggle(member.id)}
+                onClick={() => onStaffChange(member.id)}
               >
                 <Avatar
                   className={cn(

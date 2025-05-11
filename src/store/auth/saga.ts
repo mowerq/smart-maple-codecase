@@ -40,8 +40,6 @@ function* asyncLogin({
   }
 }
 
-const authSagas = [
-  debounce(QUERY_DEBOUNCE, types.SIGNIN, asyncLogin),
-];
+const authSagas = [debounce(QUERY_DEBOUNCE, types.SIGNIN, asyncLogin)];
 
 export default authSagas;
